@@ -1,3 +1,4 @@
+'use client'
 import { HeaderProps, ParagraphProps } from "../interfaces";
 
 export function Text({ children, size = "medium", className, ...props }: ParagraphProps) {
