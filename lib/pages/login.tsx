@@ -50,11 +50,11 @@ export default function Login({ setPage }: LoginProps) {
             <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                 {inputFields.map((field) => (
                     <InputLabel
-                    key={field.name}
-                    name={field.name}
-                    label={field.label}
-                    type={field.type}
-                    placeholder={field.placeholder}
+                        key={field.name}
+                        name={field.name}
+                        label={field.label}
+                        type={field.type}
+                        placeholder={field.placeholder}
                     />
                 ))}
 
