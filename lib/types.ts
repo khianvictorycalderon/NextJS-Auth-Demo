@@ -1,0 +1,1 @@
+export type PageType = "login" | "register" | "forgot_pass" | "logged_in";

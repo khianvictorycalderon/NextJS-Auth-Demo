@@ -1,8 +1,11 @@
-#  NextJS Authentication Demo
-A simple register login system with account CRUD features project.
+# Title of your Project
+Description of your project, and purpose.
 
-## To run this project:
-1. Clone this repository `git clone https://github.com/khianvictorycalderon/NextJS-Auth-Demo.git`
+## Usage
+How to use your project
+
+## To run this project (General Steps):
+1. Clone this repository `git clone https://github.com/<user-name>/<repo-name>.git`
 2. Run `npm install`
 3. Run `npm run dev`
 
@@ -12,3 +15,10 @@ You don’t need to install anything manually, as all dependencies are already m
 This section is provided for reference only, to give you insight into how the project was set up.
 
 ## Dependencies
+- `npm install <package-name>`
+
+## Configuration Dependencies
+- Update `package.json`:
+  ```bash
+  <updated-configuration>
+  ```
