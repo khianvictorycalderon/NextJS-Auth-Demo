@@ -3,3 +3,17 @@ import { PageType } from "./types";
 export interface LoginProps {
     setPage: React.Dispatch<React.SetStateAction<PageType>>;
 }
+
+export interface BoxProps extends React.HTMLAttributes<HTMLDivElement> {
+    children: React.ReactNode;
+}
+
+export interface ParagraphProps extends React.HTMLAttributes<HTMLParagraphElement> {
+    children: React.ReactNode;
+    size?: "small" | "medium" | "large";
+}
+
+export interface HeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
+    children: React.ReactNode;
+    size?: "small" | "medium" | "large" | "extra_large";
+}
