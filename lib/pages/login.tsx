@@ -49,13 +49,17 @@ export default function Login({ setPage }: SetPageOnlyProps) {
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                 {inputFields.map((field) => (
-                    <InputLabel
-                        key={field.name}
-                        name={field.name}
-                        label={field.label}
-                        type={field.type}
-                        placeholder={field.placeholder}
-                    />
+                    <div key={field.name}>
+                      <InputLabel
+                          name={field.name}
+                          label={field.label}
+                          type={field.type}
+                          placeholder={field.placeholder}
+                      />
+                      {field.name === "login_password" && (
+                          <Text className="text-sm text-blue-600 mt-2 text-right mr-8 cursor-pointer hover:underline">Forgot Password</Text>
+                      )}
+                    </div>
                 ))}
 
                 <div className="text-center">
@@ -69,7 +73,7 @@ export default function Login({ setPage }: SetPageOnlyProps) {
             </form>
           </FormProvider>
 
-          <Text className="mt-4 text-center">No account? <span className="text-blue-500 underline cursor-pointer" onClick={() => setPage("register")}>Create one</span></Text>
+          <Text className="mt-4 text-center">No account? <span className="text-blue-500 hover:underline cursor-pointer" onClick={() => setPage("register")}>Create one</span></Text>
         </Box>
       </div>
     </div>
