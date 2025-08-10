@@ -95,7 +95,7 @@ export default function Register({ setPage }: SetPageOnlyProps) {
   ];
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center my-16">
       <div className="w-full px-4 lg:max-w-4xl m-auto">
         <Box>
           <Header size="large">Register</Header>
