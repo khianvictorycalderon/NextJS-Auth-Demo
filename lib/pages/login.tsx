@@ -1,5 +1,5 @@
 'use client'
-import { LoginProps } from "../interfaces"
+import { SetPageOnlyProps } from "../interfaces"
 import Box from '../components/box'
 import { Header, Text } from "../components/typography";
 import InputLabel from "../components/input";
@@ -10,7 +10,7 @@ interface LoginFormValues {
   login_password: string;
 }
 
-export default function Login({ setPage }: LoginProps) {
+export default function Login({ setPage }: SetPageOnlyProps) {
   const methods = useForm<LoginFormValues>();
 
   const onSubmit = (data: LoginFormValues) => {

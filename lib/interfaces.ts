@@ -1,6 +1,6 @@
 import { PageType } from "./types";
 
-export interface LoginProps {
+export interface SetPageOnlyProps {
     setPage: React.Dispatch<React.SetStateAction<PageType>>;
 }
 
