@@ -1,4 +1,5 @@
 'use client'
+import ForgotPassword from "@/lib/pages/forgot_pass";
 import Login from "@/lib/pages/login";
 import Register from "@/lib/pages/register";
 import { PageType } from "@/lib/types";
@@ -12,6 +13,7 @@ export default function _() {
     <>
       {page === "login" && <Login setPage={setPage}/>}
       {page === "register" && <Register setPage={setPage}/>}
+      {page === "forgot_pass" && <ForgotPassword setPage={setPage}/>}
     </>
   )
 }
