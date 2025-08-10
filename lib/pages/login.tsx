@@ -57,7 +57,7 @@ export default function Login({ setPage }: SetPageOnlyProps) {
                           placeholder={field.placeholder}
                       />
                       {field.name === "login_password" && (
-                          <Text className="text-sm text-blue-600 mt-2 text-right mr-8 cursor-pointer hover:underline">Forgot Password</Text>
+                          <Text className="text-sm text-blue-600 mt-2 text-right mr-8 cursor-pointer hover:underline" onClick={() => setPage("forgot_pass")}>Forgot Password</Text>
                       )}
                     </div>
                 ))}
