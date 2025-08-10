@@ -128,7 +128,7 @@ export default function Register({ setPage }: SetPageOnlyProps) {
           <Text className="mt-4 text-center">
             Already have an account?{" "}
             <span
-              className="text-blue-500 underline cursor-pointer"
+              className="text-blue-500 hover:underline cursor-pointer"
               onClick={() => setPage("login")}
             >
               Login
