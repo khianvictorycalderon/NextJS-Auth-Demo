@@ -1,7 +1,7 @@
 'use client'
 import { LoginProps } from "../interfaces"
 import Box from '../components/box'
-import { Header } from "../components/typography";
+import { Header, Text } from "../components/typography";
 import InputLabel from "../components/input";
 import { useForm, FormProvider } from "react-hook-form";
 
@@ -68,6 +68,8 @@ export default function Login({ setPage }: LoginProps) {
 
             </form>
           </FormProvider>
+
+          <Text className="mt-4 text-center">No account? <span className="text-blue-500 underline cursor-pointer" onClick={() => setPage("register")}>Create one</span></Text>
         </Box>
       </div>
     </div>
