@@ -95,12 +95,9 @@ export default function Register({ setPage }: SetPageOnlyProps) {
   ];
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center">
-      <div>
-        <Box className="text-center">
-          <Header>Next.js + Supabase Auth Demo</Header>
-        </Box>
-        <Box>
+    <div className="flex items-center justify-center">
+      <div className="w-full px-4">
+        <Box className="lg:w-2xl m-auto">
           <Header size="large">Register</Header>
 
           <FormProvider {...methods}>
