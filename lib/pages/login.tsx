@@ -39,7 +39,7 @@ export default function Login({ setPage }: SetPageOnlyProps) {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center">
-      <div>
+      <div className="w-full px-4 lg:max-w-4xl m-auto">
         <Box className="text-center">
           <Header>Next.js + Supabase Auth Demo</Header>
         </Box>
