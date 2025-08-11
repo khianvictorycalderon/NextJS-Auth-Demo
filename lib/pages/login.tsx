@@ -15,6 +15,9 @@ export default function Login({ setPage }: SetPageOnlyProps) {
 
   const onSubmit = (data: LoginFormValues) => {
     console.log("Form Data:", data);
+    
+    // Will update this later, an official authentication will be provided
+    setPage("logged_in");
   };
 
   const inputFields: {
