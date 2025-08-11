@@ -106,7 +106,7 @@ export default function LoggedIn({ setPage }: SetPageOnlyProps) {
                 
                 <div className="text-center my-8">
                     <button 
-                        className="m-auto bg-blue-600 hover:bg-blue-500 rounded-md px-6 py-2 cursor-pointer"
+                        className="m-auto bg-red-600 hover:bg-red-500 rounded-md px-6 py-2 cursor-pointer"
                         onClick={handleLogout}
                         >
                         Log Out
