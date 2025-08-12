@@ -8,6 +8,7 @@ export default function InputLabel({
   label,
   flex = "column",
   className = "",
+  rules,
   ...props
 }: InputProps) {
 
@@ -32,7 +33,7 @@ export default function InputLabel({
         type={type}
         className={`w-full px-4 py-2 bg-neutral-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
         placeholder={label ? `Enter ${label.toLowerCase()}...` : ""}
-        {...(name ? register(name as any, { required: `${label} is required` }) : {})}
+        {...(name ? register(name as any, rules) : {})}
         {...props}
       />
 

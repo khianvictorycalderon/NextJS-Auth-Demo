@@ -4,6 +4,8 @@ import Box from '../components/box'
 import { Header, Text } from "../components/typography";
 import InputLabel from "../components/input";
 import { useForm, FormProvider } from "react-hook-form";
+import axios from "axios";
+import { useState } from "react";
 
 interface RegisterFormValues {
   register_first_name: string;
@@ -15,6 +17,8 @@ interface RegisterFormValues {
 }
 
 export default function Register({ setPage }: SetPageOnlyProps) {
+  const [serverError, setServerError] = useState<string | null>(null);
+
   const methods = useForm<RegisterFormValues>({
     defaultValues: {
       register_first_name: "",
@@ -24,11 +28,36 @@ export default function Register({ setPage }: SetPageOnlyProps) {
       register_password: "",
       register_confirm_password: "",
     },
+    mode: "onChange"
   });
 
-  const onSubmit = (data: RegisterFormValues) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data: RegisterFormValues) => {
+    setServerError(null);
+    try {
+      const request = await axios.post("/api/auth/register", data);
+
+      if (request.status === 201) {
+        // ✅ Successfully registered
+        console.log("Registration successful:", request.data);
+        // You could redirect or show success message here
+      } else {
+        // ❌ Unexpected status
+        setServerError("Unexpected server response. Please try again.");
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        setServerError(error.response.data.error);
+      } else {
+        setServerError("Something went wrong. Please try again.");
+      }
+    }
   };
+
+
+  const namePattern = /^[A-Za-z\s'-]+$/; // Letters, spaces, apostrophes, hyphens
+  const birthDatePattern = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD
+  const passwordPattern =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
   const inputFields: {
     name: keyof RegisterFormValues;
@@ -42,20 +71,42 @@ export default function Register({ setPage }: SetPageOnlyProps) {
       label: "First Name",
       type: "text",
       placeholder: "John",
-      rules: { required: "First Name is required" },
+      rules: {
+        required: "First Name is required",
+        pattern: {
+          value: namePattern,
+          message: "First Name must not contain numbers or special characters",
+        },
+      },
     },
     {
       name: "register_last_name",
       label: "Last Name",
       type: "text",
       placeholder: "Doe",
-      rules: { required: "Last Name is required" },
+      rules: {
+        required: "Last Name is required",
+        pattern: {
+          value: namePattern,
+          message: "Last Name must not contain numbers or special characters",
+        },
+      },
     },
     {
       name: "register_birth_date",
       label: "Birth Date",
       type: "date",
-      rules: { required: "Birth Date is required" },
+      rules: {
+        required: "Birth Date is required",
+        pattern: {
+          value: birthDatePattern,
+          message: "Birth date must be in YYYY-MM-DD format",
+        },
+        validate: (value: string) => {
+          const date = new Date(value);
+          return !isNaN(date.getTime()) || "Invalid date";
+        },
+      },
     },
     {
       name: "register_email",
@@ -77,7 +128,11 @@ export default function Register({ setPage }: SetPageOnlyProps) {
       placeholder: "••••••••",
       rules: {
         required: "Password is required",
-        minLength: { value: 6, message: "Password must be at least 6 characters" },
+        pattern: {
+          value: passwordPattern,
+          message:
+            "Password must be at least 8 characters, include upper and lower case letters, a number, and a special character",
+        },
       },
     },
     {
@@ -94,11 +149,17 @@ export default function Register({ setPage }: SetPageOnlyProps) {
     },
   ];
 
+
   return (
     <div className="flex items-center justify-center my-16">
       <div className="w-full px-4 lg:max-w-4xl m-auto">
         <Box>
           <Header size="large">Register</Header>
+
+          {/* Server error display */}
+          {serverError && (
+            <p className="text-red-500 text-sm mt-2">{serverError}</p>
+          )}
 
           <FormProvider {...methods}>
             <form
@@ -112,6 +173,7 @@ export default function Register({ setPage }: SetPageOnlyProps) {
                   label={field.label}
                   type={field.type}
                   placeholder={field.placeholder}
+                  rules={field.rules}
                 />
               ))}
 

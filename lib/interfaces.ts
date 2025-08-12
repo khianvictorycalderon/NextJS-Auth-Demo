@@ -25,4 +25,5 @@ export interface InputProps
   label: string;
   flex?: "column" | "row";
   className?: string;
+  rules?: any;
 }
