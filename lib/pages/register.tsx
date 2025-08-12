@@ -6,23 +6,23 @@ import InputLabel from "../components/input";
 import { useForm, FormProvider } from "react-hook-form";
 
 interface RegisterFormValues {
-  first_name: string;
-  last_name: string;
-  birth_date: string;
+  register_first_name: string;
+  register_last_name: string;
+  register_birth_date: string;
   register_email: string;
   register_password: string;
-  confirm_password: string;
+  register_confirm_password: string;
 }
 
 export default function Register({ setPage }: SetPageOnlyProps) {
   const methods = useForm<RegisterFormValues>({
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      birth_date: "",
+      register_first_name: "",
+      register_last_name: "",
+      register_birth_date: "",
       register_email: "",
       register_password: "",
-      confirm_password: "",
+      register_confirm_password: "",
     },
   });
 
@@ -38,21 +38,21 @@ export default function Register({ setPage }: SetPageOnlyProps) {
     rules?: any;
   }[] = [
     {
-      name: "first_name",
+      name: "register_first_name",
       label: "First Name",
       type: "text",
       placeholder: "John",
       rules: { required: "First Name is required" },
     },
     {
-      name: "last_name",
+      name: "register_last_name",
       label: "Last Name",
       type: "text",
       placeholder: "Doe",
       rules: { required: "Last Name is required" },
     },
     {
-      name: "birth_date",
+      name: "register_birth_date",
       label: "Birth Date",
       type: "date",
       rules: { required: "Birth Date is required" },
@@ -81,7 +81,7 @@ export default function Register({ setPage }: SetPageOnlyProps) {
       },
     },
     {
-      name: "confirm_password",
+      name: "register_confirm_password",
       label: "Confirm Password",
       type: "password",
       placeholder: "••••••••",
