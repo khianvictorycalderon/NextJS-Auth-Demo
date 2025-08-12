@@ -14,3 +14,4 @@ This section is provided for reference only, to give you insight into how the pr
 ## Dependencies
 - `npm install react-hook-form`
 - `npm install axios`
+- `npm install @supabase/supabase-js`
