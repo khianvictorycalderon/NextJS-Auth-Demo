@@ -1,5 +1,5 @@
 'use client'
-import { SetPageOnlyProps } from "../interfaces"
+import { FeedbackColors, FeedbackProps, SetPageOnlyProps } from "../interfaces"
 import Box from '../components/box'
 import { Header, Text } from "../components/typography";
 import InputLabel from "../components/input";
@@ -17,7 +17,11 @@ interface RegisterFormValues {
 }
 
 export default function Register({ setPage }: SetPageOnlyProps) {
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackProps | null>({
+    type: "default",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const methods = useForm<RegisterFormValues>({
     defaultValues: {
@@ -32,24 +36,46 @@ export default function Register({ setPage }: SetPageOnlyProps) {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    setServerError(null);
+
+    // Submitting feedback
+    setIsSubmitting(true);
+    setFeedback({
+      type: "default",
+      message: "Registering..."
+    });
+
     try {
       const request = await axios.post("/api/auth/register", data);
 
-      if (request.status === 201) {
-        // ✅ Successfully registered
-        console.log("Registration successful:", request.data);
-        // You could redirect or show success message here
+      if (request.status >= 200 && request.status < 300) {
+        setFeedback({
+          type: "success",
+          message: "Successfully registered, you may now login!"
+        });
+        // Clears all the input
+        methods.reset();
       } else {
-        // ❌ Unexpected status
-        setServerError("Unexpected server response. Please try again.");
+        // Registration failed
+        setFeedback({
+          type: "error",
+          message: "Unexpected server response. Please try again."
+        });
+        
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response?.data?.error) {
-        setServerError(error.response.data.error);
+      if (axios.isAxiosError(error) && error.response) {
+        setFeedback({
+          type: "error",
+          message: error.response.data.error || "Something went wrong. Please try again."
+        });
       } else {
-        setServerError("Something went wrong. Please try again.");
+        setFeedback({
+          type: "error",
+          message: "Network error. Please try again."
+        });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +130,22 @@ export default function Register({ setPage }: SetPageOnlyProps) {
         },
         validate: (value: string) => {
           const date = new Date(value);
-          return !isNaN(date.getTime()) || "Invalid date";
+          if (isNaN(date.getTime())) {
+            return "Invalid date";
+          }
+
+          const today = new Date();
+          let age = today.getFullYear() - date.getFullYear();
+          const monthDiff = today.getMonth() - date.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+            age--;
+          }
+
+          if (age < 18) {
+            return "You must be at least 18 years old";
+          }
+
+          return true;
         },
       },
     },
@@ -156,11 +197,6 @@ export default function Register({ setPage }: SetPageOnlyProps) {
         <Box>
           <Header size="large">Register</Header>
 
-          {/* Server error display */}
-          {serverError && (
-            <p className="text-red-500 text-sm mt-2">{serverError}</p>
-          )}
-
           <FormProvider {...methods}>
             <form
               onSubmit={methods.handleSubmit(onSubmit)}
@@ -174,14 +210,22 @@ export default function Register({ setPage }: SetPageOnlyProps) {
                   type={field.type}
                   placeholder={field.placeholder}
                   rules={field.rules}
+                  disabled={isSubmitting}
                 />
               ))}
+
+              {feedback?.message && (
+                <div className={`w-full py-4 rounded-md bg-neutral-800 ${FeedbackColors[feedback.type]}`}>
+                  <Text className="text-center">{feedback.message}</Text>
+                </div>
+              )}
 
               <div className="text-center">
                 <input
                   type="submit"
                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
                   value="Register"
+                  disabled={isSubmitting}
                 />
               </div>
             </form>

@@ -27,3 +27,15 @@ export interface InputProps
   className?: string;
   rules?: any;
 }
+
+export interface FeedbackProps {
+    type: "default" | "warning" | "error" | "success";
+    message: string;
+}
+
+export const FeedbackColors = {
+    default: "text-white",
+    warning: "text-yellow-500",
+    error: "text-red-500",
+    success: "text-green-600"
+}
