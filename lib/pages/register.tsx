@@ -47,21 +47,11 @@ export default function Register({ setPage }: SetPageOnlyProps) {
     try {
       const request = await axios.post("/api/auth/register", data);
 
-      if (request.status >= 200 && request.status < 300) {
-        setFeedback({
-          type: "success",
-          message: "Successfully registered, you may now login!"
-        });
-        // Clears all the input
-        methods.reset();
-      } else {
-        // Registration failed
-        setFeedback({
-          type: "error",
-          message: "Unexpected server response. Please try again."
-        });
-        
-      }
+      setFeedback({
+        type: request.status >= 200 && request.status < 300 ? "success" : "error",
+        message: request.data.error || request.data.message
+      })
+
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         setFeedback({

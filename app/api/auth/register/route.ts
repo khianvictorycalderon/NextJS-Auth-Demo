@@ -1,3 +1,4 @@
+import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -57,23 +58,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Passwords do not match" }, { status: 400 });
     }
 
-    // If everything passes
-    console.log({
-      register_first_name,
-      register_last_name,
-      register_birth_date,
-      register_email,
-      register_password
+    // Connecting to database
+    const supabase = createClient();
+
+    // Registering the user
+    const req = await supabase.auth.signUp({
+      email: register_email,
+      password: register_password,
+      options: {
+        data: {
+          first_name: register_first_name,
+          last_name: register_last_name,
+          birth_date: register_birth_date
+        }
+      }
     });
 
+    console.log(`${JSON.stringify(req)}`);
+
     return NextResponse.json(
-      { message: "Successfully received!" },
+      { message: "Successfully registered, you may login now" },
       { status: 201 }
     );
 
   } catch (error) {
     return NextResponse.json(
-      { error: "Invalid request body" },
+      { error: "Invalid request" },
       { status: 400 }
     );
   }
