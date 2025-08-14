@@ -50,7 +50,9 @@ export default function Register({ setPage }: SetPageOnlyProps) {
       setFeedback({
         type: request.status >= 200 && request.status < 300 ? "success" : "error",
         message: request.data.error || request.data.message
-      })
+      });
+
+      request.status >= 200 && request.status < 300 && methods.reset();
 
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -213,7 +215,7 @@ export default function Register({ setPage }: SetPageOnlyProps) {
               <div className="text-center">
                 <input
                   type="submit"
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer disabled:bg-green-300 disabled:cursor-default"
                   value="Register"
                   disabled={isSubmitting}
                 />

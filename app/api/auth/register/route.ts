@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
 
     // Registering the user
-    const req = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email: register_email,
       password: register_password,
       options: {
@@ -74,7 +74,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log(`${JSON.stringify(req)}`);
+    if (signUpError) {
+      return NextResponse.json({ error: `Register failed: ${signUpError.message}` }, { status: 500 });
+    }
 
     return NextResponse.json(
       { message: "Successfully registered, you may login now" },
