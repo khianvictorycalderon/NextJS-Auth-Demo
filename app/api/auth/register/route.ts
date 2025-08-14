@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
 
     // Registering the user
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: register_email,
       password: register_password,
       options: {
@@ -76,6 +76,14 @@ export async function POST(request: NextRequest) {
 
     if (signUpError) {
       return NextResponse.json({ error: `Register failed: ${signUpError.message}` }, { status: 500 });
+    }
+
+    const userId = signUpData.user?.id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Failed to et new user ID" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
