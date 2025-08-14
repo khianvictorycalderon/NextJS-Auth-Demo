@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -61,6 +62,32 @@ export async function POST(request: NextRequest) {
     // Connecting to database
     const supabase = createClient();
 
+    /*
+      // Create the table manually:
+      CREATE TABLE IF NOT EXISTS public.users (
+        id UUID PRIMARY KEY,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        birth_date DATE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    */
+
+    // Check if email exists
+    const { data: existingUser, error: emailCheckError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", register_email)
+      .maybeSingle();
+
+    if (emailCheckError) {
+      return NextResponse.json({ error: "Error checking email" }, { status: 500 });
+    }
+    if (existingUser) {
+      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
+    }
+
     // Registering the user
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: register_email,
@@ -84,6 +111,26 @@ export async function POST(request: NextRequest) {
         { error: "Failed to et new user ID" },
         { status: 500 }
       );
+    }
+
+    const userCreatedAt = signUpData.user?.created_at ?? new Date().toISOString();
+
+    const { error: insertError } = await supabase
+      .from("users")
+      .insert({
+        id: userId,
+        first_name: register_first_name,
+        last_name: register_last_name,
+        birth_date: register_birth_date,
+        email: register_email,
+        created_at: userCreatedAt
+      });
+
+    if (insertError) {
+      return NextResponse.json(
+        { error: "User auth success but failed in profile" },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(
