@@ -97,7 +97,8 @@ export async function POST(request: NextRequest) {
           first_name: register_first_name,
           last_name: register_last_name,
           birth_date: register_birth_date
-        }
+        },
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/email/verified`
       }
     });
 
