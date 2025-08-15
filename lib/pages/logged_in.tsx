@@ -6,6 +6,7 @@ import Box from "../components/box";
 import InputLabel from "../components/input";
 import { Header } from "../components/typography";
 import { SetPageOnlyProps } from "../interfaces";
+import axios from "axios";
 
 interface AccountManagementProps {
     logged_first_name: string;
@@ -44,10 +45,15 @@ export default function LoggedIn({ setPage }: SetPageOnlyProps) {
         setIsEditing(false);
     };
 
-    const handleLogout = () => {
-        console.log("Logs out the user");
-        setPage("login");
-    }
+    const handleLogout = async () => {
+        try {
+            await axios.post("/api/auth/logout", {}, { withCredentials: true });
+            setPage("login");
+        } catch (err) {
+            console.error("Logout failed:", err);
+            setPage("login");
+        }
+    };
 
     const fields = [
         { name: "logged_first_name", label: "First Name", type: "text" },
