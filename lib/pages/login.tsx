@@ -38,11 +38,6 @@ export default function Login({ refreshSession, setPage }) {
         withCredentials: true // ensure cookie is set
       });
 
-      setFeedback({
-        type: "success",
-        message: "Login successful!"
-      });
-
       setTimeout(() => {
         refreshSession();
       }, 500);
