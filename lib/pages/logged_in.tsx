@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import Box from "../components/box";
 import InputLabel from "../components/input";
@@ -19,9 +19,9 @@ interface AccountManagementProps {
 export default function LoggedIn({ setPage }: SetPageOnlyProps) {
     // Simulated user data from server
     const initialData: AccountManagementProps = {
-        logged_first_name: "John",
-        logged_last_name: "Doe",
-        logged_birth_date: "1990-01-01",
+        logged_first_name: "",
+        logged_last_name: "",
+        logged_birth_date: "",
         logged_new_password: "",
         logged_confirm_new_password: ""
     };
@@ -34,10 +34,65 @@ export default function LoggedIn({ setPage }: SetPageOnlyProps) {
 
     const { handleSubmit, reset } = methods;
 
-    const onSubmit = (data: AccountManagementProps) => {
-        console.log("Saving data:", data);
-        // API call here...
-        setIsEditing(false);
+    useEffect(() => {
+    const fetchUser = async () => {
+        try {
+        const res = await axios.get('/api/user', { withCredentials: true });
+        if (res.data.user) {
+            reset({
+            logged_first_name: res.data.user.first_name,
+            logged_last_name: res.data.user.last_name,
+            logged_birth_date: res.data.user.birth_date,
+            logged_new_password: '',
+            logged_confirm_new_password: '',
+            });
+        }
+        } catch (err) {
+        console.error('Failed to fetch user:', err);
+        }
+    };
+
+    fetchUser();
+    }, [reset]);
+
+    const onSubmit = async (data: AccountManagementProps) => {
+        if (data.logged_new_password !== data.logged_confirm_new_password) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        try {
+            const res = await axios.patch('/api/user', {
+            first_name: data.logged_first_name,
+            last_name: data.logged_last_name,
+            birth_date: data.logged_birth_date,
+            new_password: data.logged_new_password || undefined,
+            }, { withCredentials: true });
+
+            alert(res.data.message);
+            setIsEditing(false);
+            reset({
+                logged_first_name: res.data.user.user_metadata.first_name,
+                logged_last_name: res.data.user.user_metadata.last_name,
+                logged_birth_date: res.data.user.user_metadata.birth_date,
+                logged_new_password: '',
+                logged_confirm_new_password: '',
+            });
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Update failed');
+        }
+        };
+
+    const handleDeleteAccount = async () => {
+        if (!confirm('Are you sure you want to permanently delete your account?')) return;
+
+        try {
+            await axios.delete('/api/user/[id]', { withCredentials: true });
+            alert('Account deleted. Logging out...');
+            setPage('login');
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Delete failed');
+        }
     };
 
     const handleCancel = () => {
@@ -110,9 +165,15 @@ export default function LoggedIn({ setPage }: SetPageOnlyProps) {
                     </form>
                 </FormProvider>
                 
-                <div className="text-center my-8">
+                <div className="text-center my-8 flex flex-col md:flex-row justify-center gap-4">
                     <button 
-                        className="m-auto bg-red-600 hover:bg-red-500 rounded-md px-6 py-2 cursor-pointer"
+                        className="bg-red-600 hover:bg-red-500 rounded-md px-6 py-2 cursor-pointer"
+                        onClick={handleDeleteAccount}
+                        >
+                        Permanently Delete Account
+                    </button>
+                    <button 
+                        className="bg-red-600 hover:bg-red-500 rounded-md px-6 py-2 cursor-pointer"
                         onClick={handleLogout}
                         >
                         Log Out
