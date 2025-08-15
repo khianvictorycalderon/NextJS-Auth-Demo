@@ -1,23 +1,23 @@
 import { createServerClient } from "@supabase/ssr";
-// import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const createClient = () => {
-  // const cookieStore = cookies(); // ✅ this is synchronous
+export const createClient = async () => {
+  const cookieStore = await cookies(); // ✅ async here
 
   return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
-      get() {
-        return null;
+      get(name: string) {
+        return cookieStore.get(name)?.value;
       },
-      set() {
-        // You can implement this if you’re using Auth
+      set(name: string, value: string, options: any) {
+        cookieStore.set({ name, value, ...options });
       },
-      remove() {
-        // Optional
-      },
-    },
+      remove(name: string, options: any) {
+        cookieStore.set({ name, value: "", ...options });
+      }
+    }
   });
 };
