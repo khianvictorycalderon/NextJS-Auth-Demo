@@ -11,7 +11,15 @@ interface LoginFormValues {
 }
 
 export default function Login({ setPage }: SetPageOnlyProps) {
-  const methods = useForm<LoginFormValues>();
+  const methods = useForm<LoginFormValues>({
+    defaultValues: {
+      login_email: "",
+      login_password: ""
+    },
+    mode: "onChange"
+  });
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const onSubmit = (data: LoginFormValues) => {
     console.log("Form Data:", data);
@@ -25,18 +33,29 @@ export default function Login({ setPage }: SetPageOnlyProps) {
     label: string;
     type?: React.HTMLInputTypeAttribute;
     placeholder?: string;
+    rules?: any;
   }[] = [
     {
       name: "login_email",
       label: "Email",
       type: "email",
       placeholder: "you@example.com",
+      rules: {
+        required: "Email is required",
+        pattern: {
+          value: emailPattern,
+          message: "Please enter a valid email address"
+        }
+      }
     },
     {
       name: "login_password",
       label: "Password",
       type: "password",
       placeholder: "••••••••",
+      rules: {
+        required: "Password is required"
+      }
     },
   ];
 
@@ -58,6 +77,7 @@ export default function Login({ setPage }: SetPageOnlyProps) {
                           label={field.label}
                           type={field.type}
                           placeholder={field.placeholder}
+                          rules={field.rules}
                       />
                       {field.name === "login_password" && (
                           <Text className="text-sm text-blue-600 mt-2 text-right mr-8 cursor-pointer hover:underline" onClick={() => setPage("forgot_pass")}>Forgot Password</Text>
