@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data: user, error } = await supabase
-    .from("users") // Replace with your users table name
+    .from("users")
     .select("id, first_name, last_name, birth_date, email")
     .eq("id", session.user.id)
     .single();
@@ -36,7 +37,6 @@ export async function PATCH(req: NextRequest) {
   if (body.last_name) updates.last_name = body.last_name;
   if (body.birth_date) updates.birth_date = body.birth_date;
 
-  // Handle password change separately
   if (body.new_password) {
     const { error: passError } = await supabase.auth.updateUser({
       password: body.new_password
@@ -58,22 +58,33 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({ message: "Account updated successfully" });
 }
 
-export async function DELETE() {
-  const supabase = await createClient();
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient();     
+  const admin = createAdminClient();        
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Delete user from Supabase Auth
-  const { error: authError } = await supabase.auth.admin.deleteUser(session.user.id);
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
+  const { data, error: userError } = await supabase.auth.getUser(session.access_token);
+  if (userError || !data.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Optional: delete from your users table as well
-  await supabase.from("users").delete().eq("id", session.user.id);
+  const userId = data.user.id;
+  const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
+  if (deleteError) {
+    return NextResponse.json({ error: deleteError.message }, { status: 400 });
+  }
+
+  const { error: tableError } = await supabase.from("users").delete().eq("id", userId);
+  if (tableError) {
+    return NextResponse.json({ error: tableError.message }, { status: 400 });
+  }
 
   return NextResponse.json({ message: "Account deleted successfully" });
 }
