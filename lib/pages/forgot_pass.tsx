@@ -1,9 +1,11 @@
 'use client'
-import { SetPageOnlyProps } from "../interfaces";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { SetPageOnlyProps, FeedbackProps, FeedbackColors } from "../interfaces";
 import Box from '../components/box';
 import { Header, Text } from "../components/typography";
 import InputLabel from "../components/input";
 import { useForm, FormProvider } from "react-hook-form";
+import { useState } from "react";
 
 interface ForgotPasswordFormValues {
   forgot_email: string;
@@ -14,10 +16,30 @@ export default function ForgotPassword({ setPage }: SetPageOnlyProps) {
     defaultValues: {
       forgot_email: "",
     },
+    mode: "onChange",
   });
 
-  const onSubmit = (data: ForgotPasswordFormValues) => {
-    console.log("Password Reset Request:", data);
+  const supabase = createClientComponentClient();
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<FeedbackProps | null>(null);
+
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
+    setIsSending(true);
+    setFeedback({ type: "default", message: "Sending reset email..." });
+
+    const { forgot_email } = data;
+    const { error } = await supabase.auth.resetPasswordForEmail(forgot_email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+    });
+
+    if (error) {
+      setFeedback({ type: "error", message: `Failed to send reset email: ${error.message}` });
+    } else {
+      setFeedback({ type: "success", message: "Password reset email sent! Check your inbox." });
+      methods.reset();
+    }
+
+    setIsSending(false);
   };
 
   return (
@@ -39,13 +61,29 @@ export default function ForgotPassword({ setPage }: SetPageOnlyProps) {
                 label="Email"
                 type="email"
                 placeholder="you@example.com"
+                disabled={isSending}
               />
+
+              {feedback?.message && (
+                <div
+                  className={`w-full py-4 rounded-md bg-neutral-800 ${
+                    FeedbackColors[feedback.type]
+                  }`}
+                >
+                  <Text className="text-center">{feedback.message}</Text>
+                </div>
+              )}
 
               <div className="text-center">
                 <input
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
+                  className={`px-4 py-2 text-white rounded ${
+                    isSending
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                  }`}
                   value="Send Reset Link"
+                  disabled={isSending}
                 />
               </div>
             </form>
