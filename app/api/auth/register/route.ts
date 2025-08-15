@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Connecting to database
-    const supabase = createClient();
+    const supabase = await createClient();
 
     /*
       // Create the table manually:
