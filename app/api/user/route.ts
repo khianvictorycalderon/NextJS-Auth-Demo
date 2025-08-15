@@ -1,38 +1,79 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(req: NextRequest) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  if (error || !user) return NextResponse.json({ error: error?.message || 'User not found' }, { status: 401 });
+  const { data: user, error } = await supabase
+    .from("users") // Replace with your users table name
+    .select("id, first_name, last_name, birth_date, email")
+    .eq("id", session.user.id)
+    .single();
 
-  return NextResponse.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      first_name: user.user_metadata?.first_name || '',
-      last_name: user.user_metadata?.last_name || '',
-      birth_date: user.user_metadata?.birth_date || '',
-    }
-  });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json(user);
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   const body = await req.json();
 
-  const { first_name, last_name, birth_date, new_password } = body;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  // Update user metadata
-  const { data, error: updateError } = await supabase.auth.updateUser({
-    password: new_password || undefined,
-    data: { first_name, last_name, birth_date },
-  });
+  const updates: any = {};
+  if (body.first_name) updates.first_name = body.first_name;
+  if (body.last_name) updates.last_name = body.last_name;
+  if (body.birth_date) updates.birth_date = body.birth_date;
 
-  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 400 });
+  // Handle password change separately
+  if (body.new_password) {
+    const { error: passError } = await supabase.auth.updateUser({
+      password: body.new_password
+    });
+    if (passError) {
+      return NextResponse.json({ error: passError.message }, { status: 400 });
+    }
+  }
 
-  return NextResponse.json({ message: 'Profile updated successfully', user: data.user });
+  const { error } = await supabase
+    .from("users")
+    .update(updates)
+    .eq("id", session.user.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ message: "Account updated successfully" });
+}
+
+export async function DELETE() {
+  const supabase = await createClient();
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Delete user from Supabase Auth
+  const { error: authError } = await supabase.auth.admin.deleteUser(session.user.id);
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 400 });
+  }
+
+  // Optional: delete from your users table as well
+  await supabase.from("users").delete().eq("id", session.user.id);
+
+  return NextResponse.json({ message: "Account deleted successfully" });
 }
