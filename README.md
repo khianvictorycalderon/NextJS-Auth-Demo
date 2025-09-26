@@ -16,4 +16,4 @@ This section is provided for reference only, to give you insight into how the pr
 - `npm install axios`
 - `npm install @supabase/supabase-js`
 - `npm install @supabase/auth-helpers-nextjs`
-- `@supabase/ssr`
+- `npm install @supabase/ssr`
